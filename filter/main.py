@@ -8,7 +8,7 @@ class MainApplication(QtWidgets.QMainWindow):
 
     # filter parameters
     FILTER_TYPES = ["lowpass", "highpass", "bandpass", "bandstop"]
-    FILTER_ORDERS = ["1", "2", "3", "8", "8", "16"]
+    FILTER_ORDERS = ["1", "2", "4", "8", "8", "16"]
 
     INFO = (
         "Student Project with:\n"
@@ -30,6 +30,8 @@ class MainApplication(QtWidgets.QMainWindow):
         # setup UI
         self.initUI()
         self.createWidgets()
+        self.setupDefaultValues()
+        self.setValidators()
         self.setupLayout()
 
     def initUI(self):
@@ -77,21 +79,24 @@ class MainApplication(QtWidgets.QMainWindow):
         versionAction.triggered.connect(self.showVersion)
 
     def createTopBar(self):
-
         # input signal parameters y = Asin(2π * f * x) + Asin(2π * f * x)
         self.firstSinLabel = QtWidgets.QLabel("y1 = A * sin(2π * fs * x)")
         self.firstAmplitudeLineEdit = QtWidgets.QLineEdit()
         self.firstAmplitudeLineEdit.setPlaceholderText("1th Amplitude")
+        self.firstAmplitudeLineEdit.setMinimumWidth(10)
 
         self.firstFrequencyLineEdit = QtWidgets.QLineEdit()
-        self.firstFrequencyLineEdit.setPlaceholderText("1th Frequency")
+        self.firstFrequencyLineEdit.setPlaceholderText("1th Frequency [hz]")
+        self.firstFrequencyLineEdit.setMinimumWidth(10)
 
         self.secondSinLabel = QtWidgets.QLabel("y2 = A * sin(2π * fs * x)")
         self.secondAmplitudeLineEdit = QtWidgets.QLineEdit()
         self.secondAmplitudeLineEdit.setPlaceholderText("2nd Amplitude")
+        self.secondAmplitudeLineEdit.setMinimumWidth(10)
 
         self.secondFrequencyLineEdit = QtWidgets.QLineEdit()
-        self.secondFrequencyLineEdit.setPlaceholderText("2nd Frequency")
+        self.secondFrequencyLineEdit.setPlaceholderText("2nd Frequency [hz]")
+        self.secondFrequencyLineEdit.setMinimumWidth(10)
 
         # filter parameters
         self.filterTypeLabel = QtWidgets.QLabel("Filter Type")
@@ -105,10 +110,10 @@ class MainApplication(QtWidgets.QMainWindow):
         self.cutoffLabel = QtWidgets.QLabel("Cuttof Frequency")
 
         self.passbandLineEdit = QtWidgets.QLineEdit()
-        self.passbandLineEdit.setPlaceholderText("Passband Frequency")
+        self.passbandLineEdit.setPlaceholderText("Passband Frequency [hz]")
 
         self.stopbandLineEdit = QtWidgets.QLineEdit()
-        self.stopbandLineEdit.setPlaceholderText("Stopband Frequency")
+        self.stopbandLineEdit.setPlaceholderText("Stopband Frequency [hz]")
 
         # plots parameters
         self.axSamplesLineEdit = QtWidgets.QLineEdit()
@@ -120,16 +125,19 @@ class MainApplication(QtWidgets.QMainWindow):
 
         # plot button
         self.plotButton = QtWidgets.QPushButton("&Plot")
-        self.plotButton.setMinimumHeight(40)
+        self.plotButton.setMinimumHeight(60)
+        self.plotButton.setMinimumWidth(60)
         self.plotButton.setFont(QtGui.QFont("Arial", 10))
         self.plotButton.setStyleSheet("background-color: red; font: bold")
 
         # clear button
         self.clearButton = QtWidgets.QPushButton("&Clear")
-        self.clearButton.setMinimumHeight(40)
+        self.clearButton.setMinimumHeight(60)
+        self.clearButton.setMinimumWidth(60)
 
         # events
-        # self.button.clicked.connect(self.saveFunc)
+        self.plotButton.clicked.connect(self.generatePlot)
+        self.clearButton.clicked.connect(self.clearPlot)
 
     def addStatusBar(self):
         # create a label
@@ -138,7 +146,28 @@ class MainApplication(QtWidgets.QMainWindow):
         # set label as StatusBar, and the label will be only changing
         self.statusBar().addWidget(self.status)
 
+    def setupDefaultValues(self):
+        # Default sinus singal
+        self.firstAmplitudeLineEdit.setText("1")
+        self.firstFrequencyLineEdit.setText("700")
+        self.secondAmplitudeLineEdit.setText("1")
+        self.secondFrequencyLineEdit.setText("70")
+
+        # Default order of the filter
+        self.filterOrderCombo.setCurrentIndex(0)
+        # Default is ‘lowpass’.
+        self.filterTypeCombo.setCurrentIndex(0)
+
+        # Default cutoff frequency
+        self.passbandLineEdit.setText("0,65")
+        self.stopbandLineEdit.setText("0,05")
+
+        # Default plot parameters
+        self.axSamplesLineEdit.setText("48000")
+        self.grabSamplesLineEdit.setText("4800")
+
     # ======== Menu Bar function ========
+
     def closeApplication(self):
         """Close the application."""
         QtWidgets.qApp.quit()
@@ -155,15 +184,19 @@ class MainApplication(QtWidgets.QMainWindow):
     def showVersion(self):
         versionMessage = QtWidgets.QMessageBox()
         versionMessage.setWindowTitle("Version")
-        versionMessage.setText("Python 3.7.5 with PyQt5\nfor Windows")
+        versionMessage.setText("Python 3.7 with PyQt5\nfor Windows")
         versionMessage.setWindowIcon(QtGui.QIcon(self.iconName))
         versionMessage.setIcon(QtWidgets.QMessageBox.Information)
         versionMessage.exec_()
 
     # ======== Top Bar function ========
-    def saveFunc(self):
-        comboTXT = self.combo.currentText()
-        print(comboTXT)
+    def generatePlot(self):
+        pass
+        # comboTXT = self.combo.currentText()
+        print("Generate button")
+
+    def clearPlot(self):
+        print("Clear button")
 
     # ======== Setup Layout ========
     def setupLayout(self):
@@ -190,7 +223,6 @@ class MainApplication(QtWidgets.QMainWindow):
         layout2 = QtWidgets.QFormLayout()
         layout2.addRow(self.filterTypeLabel, self.filterOrderLabel)
         layout2.addRow(self.filterTypeCombo, self.filterOrderCombo)
-        # layout2.addRow(QtWidgets.) add QLine if I find it in web
         layout2.addRow(self.cutoffLabel)
         layout2.addRow(self.stopbandLineEdit, self.passbandLineEdit)
         filterGroupBox.setLayout(layout2)
@@ -198,6 +230,7 @@ class MainApplication(QtWidgets.QMainWindow):
         plotsGroupBox = QtWidgets.QGroupBox("&Plots Parameters")
         layout3 = QtWidgets.QFormLayout()
         layout3.addRow(self.axSamplesLineEdit)
+        layout3.setSpacing(20)
         layout3.addRow(self.grabSamplesLineEdit)
         plotsGroupBox.setLayout(layout3)
 
@@ -215,6 +248,21 @@ class MainApplication(QtWidgets.QMainWindow):
         mainLayout.addWidget(self.inputPlotCanvas)
         mainLayout.addWidget(self.outputPlotCanvas)
         self.setCentralWidget(centralWidget)
+
+    def setValidators(self):
+        """Sets the validation rules in added widgets"""
+        # QDoubleValidator(lower_limit, upper_limit, precision)
+        doubleValidator = QtGui.QDoubleValidator(-99.99, 99.99, 2)
+        doubleValidator.setNotation(QtGui.QDoubleValidator.StandardNotation)
+        self.firstAmplitudeLineEdit.setValidator(doubleValidator)
+        self.firstFrequencyLineEdit.setValidator(doubleValidator)
+        self.secondAmplitudeLineEdit.setValidator(doubleValidator)
+        self.secondFrequencyLineEdit.setValidator(doubleValidator)
+        self.stopbandLineEdit.setValidator(doubleValidator)
+        self.passbandLineEdit.setValidator(doubleValidator)
+
+        self.axSamplesLineEdit.setValidator(QtGui.QIntValidator(1, 48000))
+        self.grabSamplesLineEdit.setValidator(QtGui.QIntValidator(1, 48000))
 
 
 def main():
