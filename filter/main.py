@@ -4,6 +4,14 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 from filter.plots import UnfilteredSignalPlot, FilteredSignalPlot
 
 
+def inputValidator(text):
+    """Takes string from Line Edit, normalize the commma and return float."""
+    if text == "":
+        return float("0")
+    else:
+        return float(text.replace(",", "."))
+
+
 class MainApplication(QtWidgets.QMainWindow):
 
     # filter parameters
@@ -191,12 +199,43 @@ class MainApplication(QtWidgets.QMainWindow):
 
     # ======== Top Bar function ========
     def generatePlot(self):
-        pass
-        # comboTXT = self.combo.currentText()
         print("Generate button")
+        # comboTXT = self.combo.currentText()
+        firstAmplitude = inputValidator(self.firstAmplitudeLineEdit.text())
+        firstFrequency = inputValidator(self.firstFrequencyLineEdit.text())
+        secondAmplitude = inputValidator(self.secondAmplitudeLineEdit.text())
+        secondFrequency = inputValidator(self.secondFrequencyLineEdit.text())
+
+        axSamples = int(inputValidator(self.axSamplesLineEdit.text()))
+        grabSamples = int(inputValidator(self.grabSamplesLineEdit.text()))
+        # if grab samples is bigger than max samples or equal zero
+        if grabSamples > axSamples or grabSamples == 0:
+            grabSamples = axSamples
+            self.grabSamplesLineEdit.setText(str(axSamples))
+
+        self.inputPlotCanvas.plot(Am1=firstAmplitude, Fs1=firstFrequency, Am2=secondAmplitude, 
+                                Fs2=secondFrequency, samples=axSamples, section=grabSamples)
+        
+
+
+        
+        self.status.setText("Generate Plot")
 
     def clearPlot(self):
-        print("Clear button")
+        # clear values
+        self.firstAmplitudeLineEdit.setText("")
+        self.firstFrequencyLineEdit.setText("")
+        self.secondAmplitudeLineEdit.setText("")
+        self.secondFrequencyLineEdit.setText("")
+        self.passbandLineEdit.setText("")
+        self.stopbandLineEdit.setText("")
+        self.axSamplesLineEdit.setText("")
+        self.grabSamplesLineEdit.setText("")
+        # clear plots
+        self.inputPlotCanvas.cleanAxes()
+        self.outputPlotCanvas.cleanAxes()
+        self.status.setText("Ready")
+        
 
     # ======== Setup Layout ========
     def setupLayout(self):
