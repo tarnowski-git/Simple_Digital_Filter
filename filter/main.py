@@ -6,8 +6,9 @@ from filter.plots import UnfilteredSignalPlot, FilteredSignalPlot
 
 class MainApplication(QtWidgets.QMainWindow):
 
-    # The type of filter.
+    # filter parameters
     FILTER_TYPES = ["lowpass", "highpass", "bandpass", "bandstop"]
+    FILTER_ORDERS = ["1", "2", "3", "8", "8", "16"]
 
     INFO = (
         "Student Project with:\n"
@@ -22,8 +23,8 @@ class MainApplication(QtWidgets.QMainWindow):
         # setup parameters
         self.top = 50
         self.left = 50
-        self.width = 800
-        self.height = 600
+        self.width = 1200
+        self.height = 700
         self.title = "Simple Butterworth Filter"
         self.iconName = "icons//logo_uksw.ico"
         # setup UI
@@ -41,8 +42,8 @@ class MainApplication(QtWidgets.QMainWindow):
         """Creating the widgets of the application."""
         # create the Menubar
         self.addMenuBar()
-        # create buttons
-        self.addButtons()
+        # create inputs & buttons
+        self.createTopBar()
         # create input unfiltered signal plot
         self.inputPlotCanvas = UnfilteredSignalPlot(self)
         # create output filtered signal
@@ -75,15 +76,60 @@ class MainApplication(QtWidgets.QMainWindow):
         aboutAction.triggered.connect(self.showAbout)
         versionAction.triggered.connect(self.showVersion)
 
-    def addButtons(self):
-        pass
-        # self.combo = QtWidgets.QComboBox(self)
-        # self.combo.addItems(self.FILTER_TYPES)
-        # self.combo.move(150, 100)
+    def createTopBar(self):
 
-        # self.button = QtWidgets.QPushButton("&Save", self)
+        # input signal parameters y = Asin(2π * f * x) + Asin(2π * f * x)
+        self.firstSinLabel = QtWidgets.QLabel("y1 = A * sin(2π * fs * x)")
+        self.firstAmplitudeLineEdit = QtWidgets.QLineEdit()
+        self.firstAmplitudeLineEdit.setPlaceholderText("1th Amplitude")
+
+        self.firstFrequencyLineEdit = QtWidgets.QLineEdit()
+        self.firstFrequencyLineEdit.setPlaceholderText("1th Frequency")
+
+        self.secondSinLabel = QtWidgets.QLabel("y2 = A * sin(2π * fs * x)")
+        self.secondAmplitudeLineEdit = QtWidgets.QLineEdit()
+        self.secondAmplitudeLineEdit.setPlaceholderText("2nd Amplitude")
+
+        self.secondFrequencyLineEdit = QtWidgets.QLineEdit()
+        self.secondFrequencyLineEdit.setPlaceholderText("2nd Frequency")
+
+        # filter parameters
+        self.filterTypeLabel = QtWidgets.QLabel("Filter Type")
+        self.filterTypeCombo = QtWidgets.QComboBox()
+        self.filterTypeCombo.addItems(self.FILTER_TYPES)
+
+        self.filterOrderLabel = QtWidgets.QLabel("Filter Order")
+        self.filterOrderCombo = QtWidgets.QComboBox()
+        self.filterOrderCombo.addItems(self.FILTER_ORDERS)
+
+        self.cutoffLabel = QtWidgets.QLabel("Cuttof Frequency")
+
+        self.passbandLineEdit = QtWidgets.QLineEdit()
+        self.passbandLineEdit.setPlaceholderText("Passband Frequency")
+
+        self.stopbandLineEdit = QtWidgets.QLineEdit()
+        self.stopbandLineEdit.setPlaceholderText("Stopband Frequency")
+
+        # plots parameters
+        self.axSamplesLineEdit = QtWidgets.QLineEdit()
+        self.axSamplesLineEdit.setPlaceholderText("Set count of samples X")
+
+        self.grabSamplesLineEdit = QtWidgets.QLineEdit()
+        self.grabSamplesLineEdit.setPlaceholderText(
+            "Lets grab first x samples")
+
+        # plot button
+        self.plotButton = QtWidgets.QPushButton("&Plot")
+        self.plotButton.setMinimumHeight(40)
+        self.plotButton.setFont(QtGui.QFont("Arial", 10))
+        self.plotButton.setStyleSheet("background-color: red; font: bold")
+
+        # clear button
+        self.clearButton = QtWidgets.QPushButton("&Clear")
+        self.clearButton.setMinimumHeight(40)
+
+        # events
         # self.button.clicked.connect(self.saveFunc)
-        # self.button.move(150, 150)
 
     def addStatusBar(self):
         # create a label
@@ -114,7 +160,7 @@ class MainApplication(QtWidgets.QMainWindow):
         versionMessage.setIcon(QtWidgets.QMessageBox.Information)
         versionMessage.exec_()
 
-    # ======== Buttons function ========
+    # ======== Top Bar function ========
     def saveFunc(self):
         comboTXT = self.combo.currentText()
         print(comboTXT)
@@ -126,9 +172,45 @@ class MainApplication(QtWidgets.QMainWindow):
         centralWidget = QtWidgets.QWidget()
         # vertical container will be a main layout
         mainLayout = QtWidgets.QVBoxLayout(centralWidget)
-        # setup horizontal container for buttons
+
+        # create input signal group box
+        inputSignalGroupBox = QtWidgets.QGroupBox(
+            "&Sum of Sinusoidal Input Signals y = y1 + y2")
+        layout1 = QtWidgets.QFormLayout()
+        layout1.addRow(self.firstSinLabel)
+        layout1.addRow(self.firstAmplitudeLineEdit,
+                       self.firstFrequencyLineEdit)
+        layout1.addRow(self.secondSinLabel)
+        layout1.addRow(self.secondAmplitudeLineEdit,
+                       self.secondFrequencyLineEdit)
+        inputSignalGroupBox.setLayout(layout1)
+
+        # create filter left parameters
+        filterGroupBox = QtWidgets.QGroupBox("&Filter Parameters")
+        layout2 = QtWidgets.QFormLayout()
+        layout2.addRow(self.filterTypeLabel, self.filterOrderLabel)
+        layout2.addRow(self.filterTypeCombo, self.filterOrderCombo)
+        # layout2.addRow(QtWidgets.) add QLine if I find it in web
+        layout2.addRow(self.cutoffLabel)
+        layout2.addRow(self.stopbandLineEdit, self.passbandLineEdit)
+        filterGroupBox.setLayout(layout2)
+
+        plotsGroupBox = QtWidgets.QGroupBox("&Plots Parameters")
+        layout3 = QtWidgets.QFormLayout()
+        layout3.addRow(self.axSamplesLineEdit)
+        layout3.addRow(self.grabSamplesLineEdit)
+        plotsGroupBox.setLayout(layout3)
+
+        # setup horizontal container for top bar
         horizontalBox = QtWidgets.QHBoxLayout()
         horizontalBox.setDirection(QtWidgets.QVBoxLayout.LeftToRight)
+        horizontalBox.setSpacing(20)
+        horizontalBox.addWidget(inputSignalGroupBox)
+        horizontalBox.addWidget(filterGroupBox)
+        horizontalBox.addWidget(plotsGroupBox)
+        horizontalBox.addWidget(self.plotButton)
+        horizontalBox.addWidget(self.clearButton)
+
         mainLayout.addLayout(horizontalBox)
         mainLayout.addWidget(self.inputPlotCanvas)
         mainLayout.addWidget(self.outputPlotCanvas)
