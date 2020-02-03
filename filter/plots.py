@@ -89,12 +89,11 @@ class FilteredSignalPlot(FigureCanvasQTAgg):
             filtered_sine = self.butter_highpass_filter(data=unfilteredSig, cutoff=highcut, fs=samplingRate, order=order)
         elif filterType == "lowpass":
             filtered_sine = self.butter_lowpass_filter(data=unfilteredSig, cutoff=lowcut, fs=samplingRate, order=order)
-        # elif filtrType == "bandpass":
-        #     butterArray = butter(order, [lowcut, highcut], btype=filtrType, fs=samplingRate, output='sos', analog = False)
+        elif filterType == "bandpass":
+            filtered_sine = self.butter_bandpass_filter(data=unfilteredSig, lowcut=lowcut, highcut=highcut, fs=samplingRate, order=order)
         # elif filtrType == "bandstop":
         #     butterArray = butter(order, [lowcut, highcut], btype=filtrType, fs=samplingRate, output='sos', analog = False)
         
-
         # # set range
         self.axes.set_xlim(0, section)
         self.axes.set_ylim(min(filtered_sine) - 1, max(filtered_sine) + 1)
@@ -124,6 +123,19 @@ class FilteredSignalPlot(FigureCanvasQTAgg):
 
     def butter_lowpass_filter(self, data, cutoff, fs, order=5):
         b, a = self.butter_lowpass(cutoff, fs, order=order)
+        y = lfilter(b, a, data)
+        return y
+
+    def butter_bandpass(self, lowcut, highcut, fs, order=5):
+        # Nyquist frequency | f = f / (fs/2)
+        nyq = 0.5 * fs
+        low = lowcut / nyq
+        high = highcut / nyq
+        b, a = butter(order, [low, high], btype='band')
+        return b, a
+
+    def butter_bandpass_filter(self, data, lowcut, highcut, fs, order=5):
+        b, a = self.butter_bandpass(lowcut, highcut, fs, order=order)
         y = lfilter(b, a, data)
         return y
 
