@@ -92,7 +92,7 @@ class FilteredSignalPlot(FigureCanvasQTAgg):
         elif filterType == "bandpass":
             filtered_sine = self.butter_bandpass_filter(data=unfilteredSig, lowcut=lowcut, highcut=highcut, fs=samplingRate, order=order)
         elif filterType == "bandstop":
-            filtered_sin = self.butter_bandstop_filter(data=unfilteredSig, lowcut=lowcut, highcut=highcut, fs=samplingRate, order=order)
+            filtered_sine = self.butter_bandstop_filter(data=unfilteredSig, lowcut=lowcut, highcut=highcut, fs=samplingRate, order=order)
         else:
             raise ValueError("Filter type in FilteredSignalPlot is not find!")
         

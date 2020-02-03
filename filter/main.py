@@ -239,7 +239,7 @@ class MainApplication(QtWidgets.QMainWindow):
                 errorMessage.setText("Plot was crashed. Please change the parameters.")
                 errorMessage.setInformativeText(e)
                 errorMessage.exec_()
-            
+            # set statusbar text
             self.status.setText("Generate Plots")
         else:
             errorMessage = QtWidgets.QMessageBox()
