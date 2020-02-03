@@ -207,17 +207,26 @@ class MainApplication(QtWidgets.QMainWindow):
         secondFrequency = inputValidator(self.secondFrequencyLineEdit.text())
         axSamples = int(inputValidator(self.axSamplesLineEdit.text()))
 
+        # if all parameters are choose, algorithm is executed
         if not (firstAmplitude==0 or firstFrequency==0 or secondAmplitude==0 or secondFrequency==0 or axSamples==0):
-            grabSamples = int(inputValidator(self.grabSamplesLineEdit.text()))
             # if grab samples is bigger than max samples or equal zero
+            grabSamples = int(inputValidator(self.grabSamplesLineEdit.text()))
             if grabSamples > axSamples or grabSamples == 0:
                 grabSamples = axSamples
                 self.grabSamplesLineEdit.setText(str(axSamples))
             # generate input signal and save the wave
             inputSignal = self.inputPlotCanvas.plot(Am1=firstAmplitude, Fs1=firstFrequency, Am2=secondAmplitude, 
-                                    Fs2=secondFrequency, samples=axSamples, section=grabSamples)
+                                                    Fs2=secondFrequency, samples=axSamples, section=grabSamples)
+
+            # take a filter parameters
+            filterType = self.filterTypeCombo.currentText()
+            filterOrder = int(self.filterOrderCombo.currentText())
+            passband = inputValidator(self.passbandLineEdit.text())
+            stopband = inputValidator(self.stopbandLineEdit.text())
+
             # genetate filtered singal using input signal
-            self.outputPlotCanvas.plot(samplingRate=axSamples, section=grabSamples, unfilteredSig=inputSignal)
+            self.outputPlotCanvas.plot(samplingRate=axSamples, section=grabSamples, unfilteredSig=inputSignal, 
+                                        filterType=filterType, order=filterOrder, lowcut=stopband, highcut=passband)
 
             self.status.setText("Generate Plots")
         else:

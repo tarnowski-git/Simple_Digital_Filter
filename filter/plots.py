@@ -1,7 +1,7 @@
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from math import pi, sin
-from scipy.signal import butter, filtfilt
+from scipy.signal import butter, filtfilt, lfilter
 
 
 class UnfilteredSignalPlot(FigureCanvasQTAgg):
@@ -78,18 +78,17 @@ class FilteredSignalPlot(FigureCanvasQTAgg):
         self.axes.plot([1, 2, 3], [1, 2, 3])
         self.draw()
 
-    def plot(self, order=10, lowcut=0.05, highcut=10, filtrType="highpass", samplingRate=1000, section=1000, unfilteredSig=None):
+    def plot(self, order=10, lowcut=0.05, highcut=10, filterType="lowpass", samplingRate=1000, section=1000, unfilteredSig=None):
         """Draw filtered signal."""
         # clear current plot
         self.axes.clear()
         self.configureAxes()
 
 
-        if filtrType == "highpass":
-            filtered_sine = self.butter_highpass_filter(data=unfilteredSig, cutoff=highcut, fs=samplingRate)
-            # butterArray = butter(order, highcut, btype=filtrType, fs=samplingRate, output='sos', analog = False)
-        # elif filtrType == "lowpass":
-        #     butterArray = butter(order, lowcut, btype=filtrType, fs=samplingRate, output='sos', analog = False)
+        if filterType == "highpass":
+            filtered_sine = self.butter_highpass_filter(data=unfilteredSig, cutoff=highcut, fs=samplingRate, order=order)
+        elif filterType == "lowpass":
+            filtered_sine = self.butter_lowpass_filter(data=unfilteredSig, cutoff=lowcut, fs=samplingRate, order=order)
         # elif filtrType == "bandpass":
         #     butterArray = butter(order, [lowcut, highcut], btype=filtrType, fs=samplingRate, output='sos', analog = False)
         # elif filtrType == "bandstop":
@@ -115,6 +114,19 @@ class FilteredSignalPlot(FigureCanvasQTAgg):
         b, a = self.butter_highpass(cutoff, fs, order=order)
         y = filtfilt(b, a, data)
         return y
+
+    def butter_lowpass(self, cutoff, fs, order=5):
+        # Nyquist frequency | f = f / (fs/2)
+        nyq = 0.5 * fs
+        normal_cutoff = cutoff / nyq
+        b, a = butter(order, normal_cutoff, btype='low', analog=False)
+        return b, a
+
+    def butter_lowpass_filter(self, data, cutoff, fs, order=5):
+        b, a = self.butter_lowpass(cutoff, fs, order=order)
+        y = lfilter(b, a, data)
+        return y
+
 
     def configureAxes(self):
         self.axes.set_title("Filtered Signal", size=13)
