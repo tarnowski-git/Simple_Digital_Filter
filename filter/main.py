@@ -16,7 +16,7 @@ class MainApplication(QtWidgets.QMainWindow):
 
     # filter parameters
     FILTER_TYPES = ["lowpass", "highpass", "bandpass", "bandstop"]
-    FILTER_ORDERS = ["1", "2", "4", "8", "8", "16"]
+    FILTER_ORDERS = ["1", "2", "4", "8", "10", "16"]
 
     INFO = (
         "Student Project with:\n"
@@ -205,21 +205,28 @@ class MainApplication(QtWidgets.QMainWindow):
         firstFrequency = inputValidator(self.firstFrequencyLineEdit.text())
         secondAmplitude = inputValidator(self.secondAmplitudeLineEdit.text())
         secondFrequency = inputValidator(self.secondFrequencyLineEdit.text())
-
         axSamples = int(inputValidator(self.axSamplesLineEdit.text()))
-        grabSamples = int(inputValidator(self.grabSamplesLineEdit.text()))
-        # if grab samples is bigger than max samples or equal zero
-        if grabSamples > axSamples or grabSamples == 0:
-            grabSamples = axSamples
-            self.grabSamplesLineEdit.setText(str(axSamples))
 
-        self.inputPlotCanvas.plot(Am1=firstAmplitude, Fs1=firstFrequency, Am2=secondAmplitude, 
-                                Fs2=secondFrequency, samples=axSamples, section=grabSamples)
-        
+        if not (firstAmplitude==0 or firstFrequency==0 or secondAmplitude==0 or secondFrequency==0 or axSamples==0):
+            grabSamples = int(inputValidator(self.grabSamplesLineEdit.text()))
+            # if grab samples is bigger than max samples or equal zero
+            if grabSamples > axSamples or grabSamples == 0:
+                grabSamples = axSamples
+                self.grabSamplesLineEdit.setText(str(axSamples))
+            # generate input signal and save the wave
+            inputSignal = self.inputPlotCanvas.plot(Am1=firstAmplitude, Fs1=firstFrequency, Am2=secondAmplitude, 
+                                    Fs2=secondFrequency, samples=axSamples, section=grabSamples)
+            # genetate filtered singal using input signal
+            self.outputPlotCanvas.plot(samplingRate=axSamples, section=grabSamples, unfilteredSig=inputSignal)
 
-
-        
-        self.status.setText("Generate Plot")
+            self.status.setText("Generate Plots")
+        else:
+            errorMessage = QtWidgets.QMessageBox()
+            errorMessage.setIcon(QtWidgets.QMessageBox.Critical)
+            errorMessage.setWindowIcon(QtGui.QIcon(self.iconName))
+            errorMessage.setWindowTitle("Plotting error")
+            errorMessage.setText("Please fill all parameters before plotting.")
+            errorMessage.exec_()
 
     def clearPlot(self):
         # clear values
