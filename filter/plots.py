@@ -59,7 +59,7 @@ class UnfilteredSignalPlot(FigureCanvasQTAgg):
 
 
 class FilteredSignalPlot(FigureCanvasQTAgg):
-    """
+    """Canvas clas whitch compute and draws filtred signals. 
 
     Parameters
     ----------

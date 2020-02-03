@@ -199,7 +199,7 @@ class MainApplication(QtWidgets.QMainWindow):
 
     # ======== Top Bar function ========
     def generatePlot(self):
-        print("Generate button")
+        """Generate unfiltered and filtered signal on the canvas."""
         # comboTXT = self.combo.currentText()
         firstAmplitude = inputValidator(self.firstAmplitudeLineEdit.text())
         firstFrequency = inputValidator(self.firstFrequencyLineEdit.text())
