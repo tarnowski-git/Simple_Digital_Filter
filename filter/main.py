@@ -214,20 +214,32 @@ class MainApplication(QtWidgets.QMainWindow):
             if grabSamples > axSamples or grabSamples == 0:
                 grabSamples = axSamples
                 self.grabSamplesLineEdit.setText(str(axSamples))
-            # generate input signal and save the wave
-            inputSignal = self.inputPlotCanvas.plot(Am1=firstAmplitude, Fs1=firstFrequency, Am2=secondAmplitude, 
-                                                    Fs2=secondFrequency, samples=axSamples, section=grabSamples)
+                
+            # it could raise an error with generating plots, so I code try/except
+            try:
+                # generate input signal and save the wave
+                inputSignal = self.inputPlotCanvas.plot(Am1=firstAmplitude, Fs1=firstFrequency, Am2=secondAmplitude, 
+                                                        Fs2=secondFrequency, samples=axSamples, section=grabSamples)
 
-            # take a filter parameters
-            filterType = self.filterTypeCombo.currentText()
-            filterOrder = int(self.filterOrderCombo.currentText())
-            passband = inputValidator(self.passbandLineEdit.text())
-            stopband = inputValidator(self.stopbandLineEdit.text())
+                # take a filter parameters
+                filterType = self.filterTypeCombo.currentText()
+                filterOrder = int(self.filterOrderCombo.currentText())
+                passband = inputValidator(self.passbandLineEdit.text())
+                stopband = inputValidator(self.stopbandLineEdit.text())
 
-            # genetate filtered singal using input signal
-            self.outputPlotCanvas.plot(samplingRate=axSamples, section=grabSamples, unfilteredSig=inputSignal, 
-                                        filterType=filterType, order=filterOrder, lowcut=stopband, highcut=passband)
-
+                # genetate filtered singal using input signal
+                self.outputPlotCanvas.plot(samplingRate=axSamples, section=grabSamples, unfilteredSig=inputSignal, 
+                                            filterType=filterType, order=filterOrder, lowcut=stopband, highcut=passband)
+                                            
+            except ValueError as e:
+                errorMessage = QtWidgets.QMessageBox()
+                errorMessage.setIcon(QtWidgets.QMessageBox.Critical)
+                errorMessage.setWindowIcon(QtGui.QIcon(self.iconName))
+                errorMessage.setWindowTitle("Value Error")
+                errorMessage.setText("Plot was crashed. Please change the parameters.")
+                errorMessage.setInformativeText(e)
+                errorMessage.exec_()
+            
             self.status.setText("Generate Plots")
         else:
             errorMessage = QtWidgets.QMessageBox()

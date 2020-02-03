@@ -91,8 +91,10 @@ class FilteredSignalPlot(FigureCanvasQTAgg):
             filtered_sine = self.butter_lowpass_filter(data=unfilteredSig, cutoff=lowcut, fs=samplingRate, order=order)
         elif filterType == "bandpass":
             filtered_sine = self.butter_bandpass_filter(data=unfilteredSig, lowcut=lowcut, highcut=highcut, fs=samplingRate, order=order)
-        # elif filtrType == "bandstop":
-        #     butterArray = butter(order, [lowcut, highcut], btype=filtrType, fs=samplingRate, output='sos', analog = False)
+        elif filterType == "bandstop":
+            filtered_sin = self.butter_bandstop_filter(data=unfilteredSig, lowcut=lowcut, highcut=highcut, fs=samplingRate, order=order)
+        else:
+            raise ValueError("Filter type in FilteredSignalPlot is not find!")
         
         # # set range
         self.axes.set_xlim(0, section)
@@ -139,6 +141,14 @@ class FilteredSignalPlot(FigureCanvasQTAgg):
         y = lfilter(b, a, data)
         return y
 
+    def butter_bandstop_filter(self, data, lowcut, highcut, fs, order=5):
+        # Nyquist frequency | f = f / (fs/2)
+        nyq = 0.5 * fs
+        low = lowcut / nyq
+        high = highcut / nyq
+        i, u = butter(order, [low, high], btype='bandstop')
+        y = lfilter(i, u, data)
+        return y
 
     def configureAxes(self):
         self.axes.set_title("Filtered Signal", size=13)
