@@ -6,7 +6,7 @@ The [Butterworth filter](https://en.wikipedia.org/wiki/Butterworth_filter) is a 
 
 ## Demo
 
-<!-- ![program-demo](https://user-images.githubusercontent.com/34337622/73490016-f1989a00-43ab-11ea-8b42-8ce0bb2bd129.gif) -->
+![demo](https://user-images.githubusercontent.com/34337622/73711664-dc06d580-4707-11ea-8080-941172ae8512.gif)
 
 ## Technologies
 
@@ -51,6 +51,6 @@ $ pipenv run python simple_filter.py
 pyinstaller --onefile --windowed simple_filter.py
 ```
 
-## [License](https://github.com/tarnowski-git/Simple_Digital_Filter/blob/master/LICENSE.md)
+## [License](https://github.com/tarnowski-git/Simple_Digital_Filter/blob/master/LICENSE)
 
 MIT © [Konrad Tarnowski](https://github.com/tarnowski-git)
