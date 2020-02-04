@@ -4,8 +4,6 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from scipy.signal import butter, filtfilt, lfilter
 
-from math import pi, sin
-import matplotlib.pyplot as plt
 
 class UnfilteredSignalPlot(FigureCanvasQTAgg):
     """Sum of Sinusoidal Input Signals y = y1 + y2.
