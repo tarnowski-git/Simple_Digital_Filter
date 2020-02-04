@@ -124,12 +124,13 @@ class MainApplication(QtWidgets.QMainWindow):
         self.stopbandLineEdit.setPlaceholderText("Stopband Frequency [hz]")
 
         # plots parameters
-        self.axSamplesLineEdit = QtWidgets.QLineEdit()
-        self.axSamplesLineEdit.setPlaceholderText("Set count of samples X")
+        self.durationLabel = QtWidgets.QLabel("Duration of signal in sec")
+        self.durationLineEdit = QtWidgets.QLineEdit("Defaul 10 seconds")
+        self.durationLineEdit.setPlaceholderText("Set duration")
 
-        self.grabSamplesLineEdit = QtWidgets.QLineEdit()
-        self.grabSamplesLineEdit.setPlaceholderText(
-            "Lets grab first x samples")
+        self.sampleFrequencyLabel = QtWidgets.QLabel("Sample frequency")
+        self.sampleFrequencyLineEdit = QtWidgets.QLineEdit()
+        self.sampleFrequencyLineEdit.setPlaceholderText("Frequency in second")
 
         # plot button
         self.plotButton = QtWidgets.QPushButton("&Plot")
@@ -167,12 +168,12 @@ class MainApplication(QtWidgets.QMainWindow):
         self.filterTypeCombo.setCurrentIndex(0)
 
         # Default cutoff frequency
-        self.passbandLineEdit.setText("0,65")
+        self.passbandLineEdit.setText("10")
         self.stopbandLineEdit.setText("0,05")
 
         # Default plot parameters
-        self.axSamplesLineEdit.setText("48000")
-        self.grabSamplesLineEdit.setText("4800")
+        self.durationLineEdit.setText("10")
+        self.sampleFrequencyLineEdit.setText("30")
 
     # ======== Menu Bar function ========
 
@@ -205,15 +206,11 @@ class MainApplication(QtWidgets.QMainWindow):
         firstFrequency = inputValidator(self.firstFrequencyLineEdit.text())
         secondAmplitude = inputValidator(self.secondAmplitudeLineEdit.text())
         secondFrequency = inputValidator(self.secondFrequencyLineEdit.text())
-        axSamples = int(inputValidator(self.axSamplesLineEdit.text()))
+        duration = int(inputValidator(self.durationLineEdit.text()))
+        sampleFrequency = int(inputValidator(self.sampleFrequencyLineEdit.text()))
 
         # if all parameters are choose, algorithm is executed
-        if not (firstAmplitude==0 or firstFrequency==0 or secondAmplitude==0 or secondFrequency==0 or axSamples==0):
-            # if grab samples is bigger than max samples or equal zero
-            grabSamples = int(inputValidator(self.grabSamplesLineEdit.text()))
-            if grabSamples > axSamples or grabSamples == 0:
-                grabSamples = axSamples
-                self.grabSamplesLineEdit.setText(str(axSamples))
+        if not (firstAmplitude==0 or firstFrequency==0 or secondAmplitude==0 or secondFrequency==0 or duration==0 or sampleFrequency==0):
             
             # take a filter parameters
             filterType = self.filterTypeCombo.currentText()
@@ -228,10 +225,10 @@ class MainApplication(QtWidgets.QMainWindow):
             try:
                 # generate input signal and save the wave
                 sine = self.inputPlotCanvas.plot(Am1=firstAmplitude, Fs1=firstFrequency, Am2=secondAmplitude, 
-                                                        Fs2=secondFrequency, samples=axSamples, section=grabSamples)
+                                                        Fs2=secondFrequency, duration=duration, sampleFrequency=sampleFrequency)
                 # genetate filtered singal using input signal
-                self.outputPlotCanvas.plot(samplingRate=axSamples, section=grabSamples, unfilteredSig=sine, 
-                                            filterType=filterType, order=filterOrder, lowcut=stopband, highcut=passband)
+                self.outputPlotCanvas.plot(order=filterOrder, lowcut=stopband, highcut=passband, filterType=filterType, 
+                                        samplingRate=sampleFrequency, unfilteredSig=sine, duration=duration)
 
             except ValueError as e:
                 errorMessage = QtWidgets.QMessageBox()
@@ -259,8 +256,8 @@ class MainApplication(QtWidgets.QMainWindow):
         self.secondFrequencyLineEdit.setText("")
         self.passbandLineEdit.setText("")
         self.stopbandLineEdit.setText("")
-        self.axSamplesLineEdit.setText("")
-        self.grabSamplesLineEdit.setText("")
+        self.durationLineEdit.setText("")
+        self.sampleFrequencyLineEdit.setText("")
         # clear plots
         self.inputPlotCanvas.cleanAxes()
         self.outputPlotCanvas.cleanAxes()
@@ -298,9 +295,9 @@ class MainApplication(QtWidgets.QMainWindow):
 
         plotsGroupBox = QtWidgets.QGroupBox("&Plots Parameters")
         layout3 = QtWidgets.QFormLayout()
-        layout3.addRow(self.axSamplesLineEdit)
+        layout3.addRow(self.durationLabel, self.durationLineEdit)
         layout3.setSpacing(20)
-        layout3.addRow(self.grabSamplesLineEdit)
+        layout3.addRow(self.sampleFrequencyLabel, self.sampleFrequencyLineEdit)
         plotsGroupBox.setLayout(layout3)
 
         # setup horizontal container for top bar
@@ -330,8 +327,8 @@ class MainApplication(QtWidgets.QMainWindow):
         self.stopbandLineEdit.setValidator(doubleValidator)
         self.passbandLineEdit.setValidator(doubleValidator)
 
-        self.axSamplesLineEdit.setValidator(QtGui.QIntValidator(1, 48000))
-        self.grabSamplesLineEdit.setValidator(QtGui.QIntValidator(1, 48000))
+        self.durationLineEdit.setValidator(QtGui.QIntValidator(1, 48000))
+        self.sampleFrequencyLineEdit.setValidator(QtGui.QIntValidator(1, 48000))
 
 
 def main():

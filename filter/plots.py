@@ -26,15 +26,15 @@ class UnfilteredSignalPlot(FigureCanvasQTAgg):
         self.configureAxes()
         self.draw()
 
-    def plot(self, Am1 = 1, Fs1 = 1, Am2 = 1, Fs2 = 1, samples = 48000, section=4800, duration=10):
+    def plot(self, Am1=1, Fs1=1, Am2=1, Fs2=1, sampleFrequency=30, section=4800, duration=10):
         """Draw unfiltered signal.
         Return y"""
         # clear current plot
         self.axes.clear()
         self.configureAxes()
         # compute sines
-        sine1 = self.sineGenerator(30, Fs1, duration)
-        sine2 = self.sineGenerator(30, Fs2, duration)
+        sine1 = self.sineGenerator(sampleFrequency, Fs1, Am1, duration)
+        sine2 = self.sineGenerator(sampleFrequency, Fs2, Am2, duration)
         # create sum of sine
         sine = sine1 + sine2
         # set range
@@ -45,7 +45,7 @@ class UnfilteredSignalPlot(FigureCanvasQTAgg):
         self.draw()
         return sine
 
-    def sineGenerator(self, sampleFrequency, sineFrequency, duration):
+    def sineGenerator(self, sampleFrequency, sineFrequency, sineAmplitude, duration):
         # number of samples [1/sec * sec]
         nsamples = sampleFrequency * duration
         # angular frequency - how many degrees the particle travels per second
@@ -53,7 +53,7 @@ class UnfilteredSignalPlot(FigureCanvasQTAgg):
         # set timeline
         t_sine = np.linspace(0, duration, nsamples, endpoint=False)
         # count y(t)
-        y_sine = np.sin(w * t_sine)
+        y_sine = sineAmplitude * np.sin(w * t_sine)
         # pack func into pandas DataFrame
         result = pd.DataFrame({'data': y_sine}, index=t_sine)
         return result
@@ -94,14 +94,14 @@ class FilteredSignalPlot(FigureCanvasQTAgg):
         self.axes.plot([1, 2, 3], [1, 2, 3])
         self.draw()
 
-    def plot(self, order=10, lowcut=0.05, highcut=10, filterType="lowpass", samplingRate=1000, section=1000, unfilteredSig=None, duration=10):
+    def plot(self, order=10, lowcut=0.05, highcut=10, filterType="lowpass", samplingRate=30, section=1000, unfilteredSig=None, duration=10):
         """Draw filtered signal."""
         # clear current plot
         self.axes.clear()
         self.configureAxes()
         # choose appropriate type
         if filterType == "highpass":
-            filtered_sine = self.butter_highpass_filter(data=unfilteredSig.data, cutoff=10, fs=30, order=10)
+            filtered_sine = self.butter_highpass_filter(data=unfilteredSig.data, cutoff=highcut, fs=samplingRate, order=order)
         elif filterType == "lowpass":
             filtered_sine = self.butter_lowpass_filter(data=unfilteredSig.data, cutoff=lowcut, fs=samplingRate, order=order)
         elif filterType == "bandpass":
