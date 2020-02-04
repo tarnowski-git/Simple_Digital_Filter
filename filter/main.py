@@ -169,14 +169,13 @@ class MainApplication(QtWidgets.QMainWindow):
 
         # Default cutoff frequency
         self.passbandLineEdit.setText("10")
-        self.stopbandLineEdit.setText("0,05")
+        self.stopbandLineEdit.setText("3,67")
 
         # Default plot parameters
         self.durationLineEdit.setText("10")
         self.sampleFrequencyLineEdit.setText("30")
 
     # ======== Menu Bar function ========
-
     def closeApplication(self):
         """Close the application."""
         QtWidgets.qApp.quit()
@@ -217,9 +216,6 @@ class MainApplication(QtWidgets.QMainWindow):
             filterOrder = int(self.filterOrderCombo.currentText())
             passband = inputValidator(self.passbandLineEdit.text())
             stopband = inputValidator(self.stopbandLineEdit.text())
-            if stopband > passband:
-                passband = stopband
-                self.passbandLineEdit.setText(str(stopband))
 
             # it could raise an error with generating plots, so I code try/except
             try:
