@@ -157,9 +157,9 @@ class MainApplication(QtWidgets.QMainWindow):
     def setupDefaultValues(self):
         # Default sinus singal
         self.firstAmplitudeLineEdit.setText("1")
-        self.firstFrequencyLineEdit.setText("700")
+        self.firstFrequencyLineEdit.setText("10")
         self.secondAmplitudeLineEdit.setText("1")
-        self.secondFrequencyLineEdit.setText("70")
+        self.secondFrequencyLineEdit.setText("1")
 
         # Default order of the filter
         self.filterOrderCombo.setCurrentIndex(0)
@@ -227,13 +227,12 @@ class MainApplication(QtWidgets.QMainWindow):
             # it could raise an error with generating plots, so I code try/except
             try:
                 # generate input signal and save the wave
-                inputSignal = self.inputPlotCanvas.plot(Am1=firstAmplitude, Fs1=firstFrequency, Am2=secondAmplitude, 
+                sine = self.inputPlotCanvas.plot(Am1=firstAmplitude, Fs1=firstFrequency, Am2=secondAmplitude, 
                                                         Fs2=secondFrequency, samples=axSamples, section=grabSamples)
-
                 # genetate filtered singal using input signal
-                self.outputPlotCanvas.plot(samplingRate=axSamples, section=grabSamples, unfilteredSig=inputSignal, 
+                self.outputPlotCanvas.plot(samplingRate=axSamples, section=grabSamples, unfilteredSig=sine, 
                                             filterType=filterType, order=filterOrder, lowcut=stopband, highcut=passband)
-                                            
+
             except ValueError as e:
                 errorMessage = QtWidgets.QMessageBox()
                 errorMessage.setIcon(QtWidgets.QMessageBox.Critical)
