@@ -166,6 +166,8 @@ class MainApplication(QtWidgets.QMainWindow):
         self.filterOrderCombo.setCurrentIndex(0)
         # Default is ‘lowpass’.
         self.filterTypeCombo.setCurrentIndex(0)
+        self.passbandLineEdit.setDisabled(True)
+        self.stopbandLineEdit.setDisabled(False)
 
         # Default cutoff frequency
         self.passbandLineEdit.setText("10")
@@ -246,6 +248,7 @@ class MainApplication(QtWidgets.QMainWindow):
 
     def clearPlot(self):
         # clear values
+        self.filterTypeCombo.setCurrentIndex(0)
         self.firstAmplitudeLineEdit.setText("")
         self.firstFrequencyLineEdit.setText("")
         self.secondAmplitudeLineEdit.setText("")
@@ -326,6 +329,24 @@ class MainApplication(QtWidgets.QMainWindow):
         self.durationLineEdit.setValidator(QtGui.QIntValidator(1, 48000))
         self.sampleFrequencyLineEdit.setValidator(QtGui.QIntValidator(1, 48000))
 
+        self.filterTypeCombo.currentIndexChanged.connect(self.disableUnusedOptions)
+
+    def disableUnusedOptions(self):
+        """Function for disabling and enabling line edit on the UI."""
+        temp = self.filterTypeCombo.currentText()
+        if temp == "highpass":
+            # print("type filter")
+            self.passbandLineEdit.setDisabled(False)
+            self.stopbandLineEdit.setDisabled(True)
+        elif temp == "lowpass":
+            self.passbandLineEdit.setDisabled(True)
+            self.stopbandLineEdit.setDisabled(False)
+        elif temp == "bandpass":
+            self.passbandLineEdit.setDisabled(False)
+            self.stopbandLineEdit.setDisabled(False)
+        elif temp == "bandstop":
+            self.passbandLineEdit.setDisabled(False)
+            self.stopbandLineEdit.setDisabled(False)
 
 def main():
     # You need one (and only one) QApplication instance per application.
